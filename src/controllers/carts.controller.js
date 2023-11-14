@@ -154,7 +154,6 @@ async function createCart(req, res, next) {
 async function manageCartProducts(req, res, next) {
   const { cid, pid } = req.params;
   const { op } = req.body;
-
   try {
     if (!cid || !pid || !op) {
       req.logger.error(
@@ -170,7 +169,6 @@ async function manageCartProducts(req, res, next) {
         .status(500)
         .json({ message: "Error al agregar productos al carrito" });
     }
-
     const cart = await cartService.getOneCart(cid);
     if (!cart.products) {
       req.logger.error(
@@ -185,7 +183,6 @@ async function manageCartProducts(req, res, next) {
       res.status(500).json({ message: "Error al obtener el carrito" });
     } else {
       const product = await productsService.getOneProduct(pid);
-
       if (product.owner === req.user.user.username) {
         req.logger.error(
           `Error de autenticación: El propietario no puede agregar su producto al carrito ${new Date().toLocaleString()}`
@@ -264,13 +261,10 @@ async function deleteProduct(req, res, next) {
       });
       res.status(500).json({ message: "Error al eliminar el producto" });
     }
-
     let productExistsInCarts = cart.products.findIndex(
       (dato) => dato.product === pid
     );
-
     cart.products.splice(productExistsInCarts, 1);
-
     const result = await cartService.updateOneCart(cid, cart);
     if (!result) {
       req.logger.error(

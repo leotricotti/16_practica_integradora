@@ -22,6 +22,7 @@ async function failRegister(req, res, next) {
     message: "Error al crear el usuario",
     code: EErrors.DATABASE_ERROR,
   });
+  res.status(500).json({ message: "Error al crear el usuario" });
   next();
 }
 
@@ -40,6 +41,7 @@ async function loginUser(req, res, next) {
         message: "Error de inicio de sesión",
         code: EErrors.INVALID_TYPES_ERROR,
       });
+      res.status(400).json({ message: "Error de inicio de sesión" });
     } else {
       const result = await usersService.getOneUser(username);
       if (
@@ -55,6 +57,7 @@ async function loginUser(req, res, next) {
           message: "Usuario no encontrado",
           code: EErrors.DATABASE_ERROR,
         });
+        res.status(404).json({ message: "Usuario no encontrado" });
       } else {
         const myToken = generateToken({
           first_name: result[0].first_name,
@@ -85,6 +88,7 @@ async function failLogin(req, res, next) {
     message: "Error al iniciar sessión",
     code: EErrors.DATABASE_ERROR,
   });
+  res.status(500).json({ message: "Error al iniciar sessión" });
   return next();
 }
 
@@ -101,18 +105,16 @@ async function lastConnection(req, res, next) {
       message: "Error al informar la última conexión",
       code: EErrors.INVALID_TYPES_ERROR,
     });
+    res.status(400).json({ message: "Error al informar la última conexión" });
     return;
   }
-
   try {
     const userResult = await usersService.getOneUser(username);
     const id = userResult[0]._id;
-
     const newAction = `${
       action === "login" ? "Login" : "Logout"
     } realizado con éxito ${new Date().toLocaleString()}`;
     const result = await sessionsService.lastConnection(id, newAction);
-
     if (result.length === 0) {
       req.logger.error(
         `Error de base de datos: Usuario no encontrado ${new Date().toLocaleString()}`
@@ -123,9 +125,9 @@ async function lastConnection(req, res, next) {
         message: "Usuario no encontrado",
         code: EErrors.DATABASE_ERROR,
       });
+      res.status(404).json({ message: "Usuario no encontrado" });
       return;
     }
-
     req.logger.info(
       `Última acción informada con éxito ${new Date().toLocaleString()}`
     );

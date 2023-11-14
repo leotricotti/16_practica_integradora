@@ -24,10 +24,9 @@ async function forgotPassword(req, res, next) {
         message: "Error al actualizar la contraseña",
         code: EErrors.INVALID_TYPES_ERROR,
       });
+      res.status(400).json({ message: "Error al actualizar la contraseña" });
     }
-
     const user = await usersService.getOneUser(username);
-
     if (user.length === 0) {
       req.logger.error(
         `Error de base de datos: Usuario no encontrado ${new Date().toLocaleString()}`
@@ -38,6 +37,7 @@ async function forgotPassword(req, res, next) {
         message: "Usuario no encontrado",
         code: EErrors.DATABASE_ERROR,
       });
+      res.status(404).json({ message: "Usuario no encontrado" });
     } else {
       const passwordToken = generateToken({ username });
       const mailer = new MailingService();
@@ -62,7 +62,7 @@ async function forgotPassword(req, res, next) {
       req.logger.info(
         `Correo de recuperación enviado al usuario ${new Date().toLocaleString()}`
       );
-      res.status(200).json({
+      res.status.json({
         response: "Correo de recuperación enviado al usuario",
         data: passwordToken,
       });
@@ -87,6 +87,7 @@ async function updateUser(req, res, next) {
         message: "Error al actualizar el perfil",
         code: EErrors.INVALID_TYPES_ERROR,
       });
+      res.status(400).json({ message: "Error al actualizar el perfil" });
     } else {
       const user = await usersService.getOneUser(uid);
       if (user.length === 0) {
@@ -99,6 +100,7 @@ async function updateUser(req, res, next) {
           message: "Usuario no encontrado",
           code: EErrors.DATABASE_ERROR,
         });
+        res.status(404).json({ message: "Usuario no encontrado" });
       } else {
         const id = user[0]._id;
         const result = await usersService.updateOneUser(id, data);
@@ -112,6 +114,7 @@ async function updateUser(req, res, next) {
             message: "Usuario no encontrado",
             code: EErrors.DATABASE_ERROR,
           });
+          res.status(404).json({ message: "Usuario no encontrado" });
         } else {
           const updatedUser = await usersService.getOneUser(id);
           const userDto = new UsersDto(updatedUser);
@@ -135,44 +138,45 @@ async function userCart(req, res, next) {
   const { cartId, email } = req.body;
   try {
     if (!cartId || !email) {
-      const error = new CustomError({
+      req.logger.error(
+        `Error de tipo de dato: Error al actualizar al crear el carrito ${new Date().toLocaleString()}`
+      );
+      CustomError.createError({
         name: "Error de tipo de dato",
-        cause: generateUserCartErrorInfo(
-          [cartId, email],
-          EErrors.INVALID_TYPES_ERROR
-        ),
-        message: "Error al cargar el carrito",
+        cause: generateSessionErrorInfo(result, EErrors.INVALID_TYPES_ERROR),
+        message: "Error al crear el carrito",
         code: EErrors.INVALID_TYPES_ERROR,
       });
-      req.logger.error(error.message);
-      throw error;
+      res.status(400).json({ message: "Error al crear el carrito" });
     }
-
     const user = await usersService.getOneUser(email);
     if (user.length === 0) {
-      const error = new CustomError({
+      req.logger.error(
+        `Error de base de datos: Usuario no encontrado ${new Date().toLocaleString()}`
+      );
+      CustomError.createError({
         name: "Error de base de datos",
         cause: generateUserCartErrorInfo(user, EErrors.DATABASE_ERROR),
         message: "Error al cargar el carrito",
         code: EErrors.DATABASE_ERROR,
       });
-      req.logger.error(error.message);
-      throw error;
+      res.status(404).json({ message: "Usuario no encontrado" });
     }
-
     const userId = user[0]._id;
     const cartExist = user[0].carts.find((cart) => cart == cartId);
     if (!cartExist) {
       const response = await usersService.updateUserCart(userId, cartId);
       if (!response) {
-        const error = new CustomError({
+        req.logger.error(
+          `Error de base de datos: Error al actualizar el carrito ${new Date().toLocaleString()}`
+        );
+        CustomError.createError({
           name: "Error de base de datos",
           cause: generateUserCartErrorInfo(user, EErrors.DATABASE_ERROR),
           message: "Error al actualizar el carrito",
           code: EErrors.DATABASE_ERROR,
         });
-        req.logger.error(error.message);
-        throw error;
+        res.status(404).json({ message: "Usuario no encontrado" });
       }
     } else {
       req.logger.info(
@@ -192,7 +196,6 @@ async function updatePassword(req, res, next) {
   const { newPasswordData } = req.body;
   const password = newPasswordData;
   const username = req.user.user.username;
-
   try {
     if (!password || !username) {
       const result = [password, username];
@@ -205,11 +208,10 @@ async function updatePassword(req, res, next) {
         message: "Error al actualizar la contraseña",
         code: EErrors.INVALID_TYPES_ERROR,
       });
+      res.status(400).json({ message: "Error al actualizar la contraseña" });
     }
-
     const user = await usersService.getOneUser(username);
     const passwordExist = isValidPassword(user[0].password, password);
-
     if (user.length === 0) {
       req.logger.error(
         `Error de base de datos: Usuario no encontrado ${new Date().toLocaleString()}`
@@ -220,6 +222,7 @@ async function updatePassword(req, res, next) {
         message: "Usuario no encontrado",
         code: EErrors.DATABASE_ERROR,
       });
+      res.status(404).json({ message: "Usuario no encontrado" });
     } else if (passwordExist) {
       req.logger.error(
         `Error de base de autenticación: La contraseña no puede ser igual a la anterior ${new Date().toLocaleString()}`
@@ -267,6 +270,7 @@ async function updateUserRole(req, res, next) {
         message: "Error al actualizar el rol",
         code: EErrors.INVALID_TYPES_ERROR,
       });
+      res.status(400).json({ message: "Error al actualizar el rol" });
     }
     const user = await usersService.getOneUser(username);
     if (user.length === 0) {
@@ -279,6 +283,7 @@ async function updateUserRole(req, res, next) {
         message: "Usuario no encontrado",
         code: EErrors.DATABASE_ERROR,
       });
+      res.status(404).json({ message: "Usuario no encontrado" });
     } else {
       const uid = user[0]._id;
       const result = await usersService.updateUserRole(uid, role);
@@ -320,6 +325,7 @@ async function addDocumentsToUser(req, res, next) {
         message: "Error al agregar un documento",
         code: EErrors.INVALID_TYPES_ERROR,
       });
+      res.status(400).json({ message: "Error al agregar un documento" });
     }
     const user = await usersService.getOneUser(uid);
     if (user.length === 0) {
@@ -332,6 +338,7 @@ async function addDocumentsToUser(req, res, next) {
         message: "Usuario no encontrado",
         code: EErrors.DATABASE_ERROR,
       });
+      res.status(404).json({ message: "Usuario no encontrado" });
     } else {
       const id = user[0]._id;
       let result;
@@ -353,6 +360,7 @@ async function addDocumentsToUser(req, res, next) {
           message: "Error al agregar el documento",
           code: EErrors.DATABASE_ERROR,
         });
+        res.status(404).json({ message: "Error al agregar el documento" });
       } else {
         const updatedUser = await usersService.getOneUser(uid);
         const userDto = new UsersDto(updatedUser[0]);

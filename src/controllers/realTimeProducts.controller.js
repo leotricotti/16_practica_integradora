@@ -10,11 +10,9 @@ import {
 async function saveProduct(req, res, next) {
   const { title, description, code, price, stock, category, owner, thumbnail } =
     req.body;
-
   try {
     if (!title || !description || !price || !code || !stock || !category) {
       const data = { title, description, code, price, stock, category };
-
       req.logger.error(
         `Error de tipo de dato: Error al crear el producto ${new Date().toLocaleString()}`
       );
@@ -26,7 +24,6 @@ async function saveProduct(req, res, next) {
       });
       res.status(500).json({ message: "Error al crear el producto" });
     }
-
     const product = {
       title,
       description,
@@ -37,9 +34,7 @@ async function saveProduct(req, res, next) {
       category,
       thumbnail,
     };
-
     const result = await productsService.saveOneProduct(product);
-
     if (!result) {
       req.logger.error(
         `Error de base de datos: Error al crear el producto ${new Date().toLocaleString()}`
@@ -52,7 +47,6 @@ async function saveProduct(req, res, next) {
       });
       res.status(500).json({ message: "Error al crear el producto" });
     }
-
     req.logger.info(`Producto creado con éxito ${new Date().toLocaleString()}`);
     res.json({ message: "Producto creado con éxito", data: result });
   } catch (err) {
@@ -64,7 +58,6 @@ async function saveProduct(req, res, next) {
 async function deleteProduct(req, res, next) {
   const { pid } = req.params;
   const userRole = req.user.role;
-
   try {
     if (!pid) {
       req.logger.error(
@@ -78,9 +71,7 @@ async function deleteProduct(req, res, next) {
       });
       res.status(500).json({ message: "Error al eliminar el producto" });
     }
-
     const product = await productsService.getOneProduct(pid);
-
     if (userRole === "premium" && product.owner !== req.user.user.username) {
       req.logger.error(
         `Error de permisos: Error al eliminar el producto ${new Date().toLocaleString()}`
@@ -99,7 +90,6 @@ async function deleteProduct(req, res, next) {
       );
       res.json({ message: `Producto eliminado con éxito`, data: result });
     }
-
     if (!result) {
       req.logger.error(
         `Error de base de datos: Error al eliminar el producto ${new Date().toLocaleString()}`
@@ -112,7 +102,6 @@ async function deleteProduct(req, res, next) {
       });
       res.status(500).json({ message: "Error al eliminar el producto" });
     }
-
     req.logger.info(
       `Producto eliminado con éxito ${new Date().toLocaleString()}`
     );
@@ -127,7 +116,6 @@ async function updateProduct(req, res, next) {
   const { pid } = req.params;
   const { title, description, code, price, stock, category, thumbnail } =
     req.body;
-
   try {
     if (!title || !description || !price || !code || !stock) {
       const data = { title, description, code, price, stock, category };
@@ -142,7 +130,6 @@ async function updateProduct(req, res, next) {
       });
       res.status(500).json({ message: "Error al actualizar el producto" });
     }
-
     const product = {
       title,
       description,
@@ -152,9 +139,7 @@ async function updateProduct(req, res, next) {
       category,
       thumbnail,
     };
-
     const result = await productsService.updateOneProduct(pid, product);
-
     if (!result) {
       req.logger.error(
         `Error de base de datos: Error al actualizar el producto ${new Date().toLocaleString()}`
