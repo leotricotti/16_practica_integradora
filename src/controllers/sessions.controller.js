@@ -92,6 +92,7 @@ async function failLogin(req, res, next) {
   return next();
 }
 
+// Ruta que informa la última conexión del usuario
 async function lastConnection(req, res, next) {
   const { username, action } = req.body;
   if (!username || !action) {

@@ -41,6 +41,11 @@ const productsSchema = mongoose.Schema({
   thumbnail: {
     type: Array,
     required: false,
+    default: [
+      {
+        img1: "https://freezedepot.com/wp-content/uploads/2023/05/producto-sin-imagen.png",
+      },
+    ],
   },
 });
 

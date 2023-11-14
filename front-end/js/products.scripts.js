@@ -119,8 +119,6 @@ const productsHandler = async (handler, index) => {
   productsContainer.innerHTML = productsHtml;
 };
 
-productsHandler();
-
 //Guardar cartId en localStorage
 const saveCartId = (cartId) => {
   const localId = localStorage.getItem("cartId");
@@ -148,7 +146,10 @@ const getCartId = async () => {
   }
 };
 
-getCartId();
+document.addEventListener("DOMContentLoaded", () => {
+  getCartId();
+  productsHandler();
+});
 
 // Ruta que agrega el id del carrito como referencia al usuario
 const addCartId = async () => {

@@ -22,7 +22,7 @@ async function finishPurchase(req, res, next) {
         message: "Error al finalizar la compra",
         code: EErrors.INVALID_TYPES_ERROR,
       });
-      res.json({ message: "Error al finalizar la compra" });
+      res.status(400).json({ message: "Error al finalizar la compra" });
     }
     const cart = await cartService.getOneCart(cid);
     if (cart.length === 0) {
@@ -35,7 +35,7 @@ async function finishPurchase(req, res, next) {
         message: "Error al finalizar la compra",
         code: EErrors.DATABASE_ERROR,
       });
-      res.json({ message: "Error al finalizar la compra" });
+      res.status(400).json({ message: "Error al finalizar la compra" });
     }
     const productWithOutStock = products.filter(
       (product) => product.product.stock < product.quantity
@@ -74,7 +74,7 @@ async function finishPurchase(req, res, next) {
           message: "Error al crear el ticket",
           code: EErrors.DATABASE_ERROR,
         });
-        res.json({ message: "Error al crear el ticket" });
+        res.status(400).json({ message: "Error al crear el ticket" });
       }
       req.logger.info(
         `Compra realizada con éxito ${new Date().toLocaleString()}`
@@ -95,12 +95,13 @@ async function finishPurchase(req, res, next) {
       };
       const ticket = await ticketsService.createOneTicket(newTicket);
       if (!ticket) {
-        throw CustomError.createError({
+        CustomError.createError({
           name: "Error de base de datos",
           cause: generateTicketErrorInfo(result, EErrors.DATABASE_ERROR),
           message: "Error al crear el ticket",
           code: EErrors.DATABASE_ERROR,
         });
+        res.status(400).json({ message: "Error al crear el ticket" });
       }
       req.logger.info(
         `Compra realizada con éxito ${new Date().toLocaleString()}`

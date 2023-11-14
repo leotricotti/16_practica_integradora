@@ -1,9 +1,6 @@
-// Paginación de productos
+// Variables globales
 let page = 1;
-// Puerto del servidor
 const PORT = localStorage.getItem("port");
-
-// Cantidad de productos
 const userLocalData = JSON.parse(localStorage.getItem("user"));
 const userRoleInfo = userLocalData.role;
 const userName = userLocalData.username;
@@ -16,6 +13,10 @@ if (userRoleInfo === "admin") {
 // Obtener el formulario de agregar producto
 const form = document.getElementById("add-product-form");
 form.addEventListener("submit", handleSubmit);
+
+async function loadProductImage() {
+  const file = document.getElementById("thumbnail").files[0];
+}
 
 // Función para manejar el envío del formulario de actualizar producto
 async function handleUpdateProduct(
@@ -36,12 +37,6 @@ async function handleUpdateProduct(
       price: price,
       stock: stock,
       category: category,
-      thumbnail:
-        thumbnail === ""
-          ? {
-              img1: "https://freezedepot.com/wp-content/uploads/2023/05/producto-sin-imagen.png",
-            }
-          : thumbnail.value,
     };
 
     const response = await fetch(
@@ -219,8 +214,7 @@ const getProductToUpdate = async (id) => {
       code.value,
       price.value,
       stock.value,
-      category.value,
-      thumbnail.value
+      category.value
     );
   });
 

@@ -36,7 +36,8 @@ async function updateUserRole(newRoleData) {
   } else {
     Swal.fire({
       icon: "success",
-      title: "Rol actualizado con exito",
+      title: "¡Felicitaciones!",
+      text: "Bienvenido a la comunidad Premium",
       confirmButtonText: "Aceptar",
       showClass: {
         popup: "animate__animated animate__zoomIn",
