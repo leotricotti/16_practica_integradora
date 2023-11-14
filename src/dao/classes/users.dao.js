@@ -90,10 +90,27 @@ export default class UsersDao {
 
   updateProfileImage = async (id, image) => {
     try {
-      const respuesta = await usersModel.findOneAndUpdate(
-        { _id: id, "documents.name": "userProfileImage" },
-        { "documents.$.reference": image.path }
+      let user = await usersModel.findById(id);
+      if (!user) {
+        return [];
+      }
+
+      let docIndex = user.documents.findIndex(
+        (doc) => doc.name === "userProfileImage"
       );
+      if (docIndex !== -1) {
+        // Si el documento existe, actualízalo
+        user.documents[docIndex].reference = image.path;
+      } else {
+        // Si el documento no existe, créalo
+        user.documents.push({
+          name: "userProfileImage",
+          reference: image.path,
+        });
+      }
+
+      // Guarda el usuario actualizado
+      const respuesta = await user.save();
       return respuesta;
     } catch (error) {
       console.log(error);

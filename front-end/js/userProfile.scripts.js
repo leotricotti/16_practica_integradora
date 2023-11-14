@@ -1,5 +1,5 @@
 //Variables globales
-const userProfile = [JSON.parse(localStorage.getItem("user"))];
+const userProfile = [];
 const userProfileForm = document.getElementById("user-profile-form");
 const addDocumentsForm = document.getElementById("add-documents-form");
 const token = localStorage.getItem("token");
@@ -8,7 +8,8 @@ const localPort = localStorage.getItem("localPort");
 
 // Función que captura la información del usuario y la almacena en el local storage
 const getUser = async () => {
-  const newRole = "premium";
+  const premium = "premium";
+
   try {
     const response = await fetch(`http://localhost:${PORT}/api/users/current`, {
       method: "GET",
@@ -19,16 +20,22 @@ const getUser = async () => {
     });
 
     const result = await response.json();
-    console.log(result);
+
+    userProfile.push(result.data);
 
     if (result.length > 0 || result.data) {
       localStorage.setItem("user", JSON.stringify(result.data));
+      showSpinner(userProfile);
     }
 
-    const documents = result.data.documents.length;
-
-    if (documents > 0 && result.data.role === "user") {
-      updateUserRole(newRole);
+    if (
+      result.data.documents.length > 0 &&
+      result.data.documents.some(
+        (document) => document.name !== "userProfileImage"
+      ) &&
+      result.data.role === "user"
+    ) {
+      updateUserRole(premium);
     }
 
     renderUserProfile();
@@ -69,9 +76,10 @@ const addUserProfileImage = async (userProfileImage) => {
       hideClass: {
         popup: "animate__animated animate__zoomOut",
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        getUser();
+    }).then((resulted) => {
+      if (resulted.isConfirmed) {
+        localStorage.setItem("user", JSON.stringify(result.data));
+        window.location.reload();
       }
     });
   }
@@ -101,12 +109,12 @@ const checkUserProfileImage = () => {
       "/profiles/" + referenceParts[referenceParts.length - 1];
     return `<img class="rounded-circle mt-5" width="150px" height="150px" style="object-fit: contain" src="http://localhost:${PORT}${finalReference}" />`;
   } else {
-    return `<img class="rounded-circle mt-5" width="150px" src="../img/user.jpg" />`;
+    return `<img class="rounded-circle mt-5" width="150px" src="../img/user-avatar.jpg" />`;
   }
 };
 
 // Función que renderiza el perfil del usuario
-async function renderUserProfile() {
+function renderUserProfile() {
   let html = "";
 
   html += `
@@ -239,7 +247,10 @@ async function renderUserProfile() {
                 <h4 class="text-right">Archivos</h4>
               </div>
               ${
-                user.documents && user.documents.length > 0
+                user.documents &&
+                user.documents.some(
+                  (document) => document.name !== "userProfileImage"
+                )
                   ? user.documents
                       .map((document) => {
                         return `  
@@ -254,13 +265,13 @@ async function renderUserProfile() {
                       })
                       .join("")
                   : `<label class="labels mb-2 text-decoration-underline">Documento de identidad</label>
-                  <input class="form-control disable" type="file" id="user-identification" required />
+                  <input class="form-control" type="file" id="user-identification" accept="image/*" autocomplete="off" required />
                   <br />
                   <label class="labels mb-2 text-decoration-underline">Comprobante de domicilio</label>
-                  <input class="form-control" type="file" id="user-address-document" required autocomplete="off"/>
+                  <input class="form-control" type="file" id="user-address-document" accept="image/*" required autocomplete="off"/>
                   <br />
                   <label class="labels mb-2 text-decoration-underline">Comprobante de pago</label>
-                  <input class="form-control" type="file" id="user-count-document" required autocomplete="off"/>`
+                  <input class="form-control" type="file" id="user-count-document" accept="image/*" required autocomplete="off"/>`
               }
               </div>
             </div>
@@ -273,26 +284,26 @@ async function renderUserProfile() {
 
   // Agrega el evento de click después de renderizar el HTML
   const button = document.getElementById("user-profile-image");
-  button.addEventListener("click", () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*"; // Solo acepta archivos de imagen
-    fileInput.style.display = "none";
-    document.body.appendChild(fileInput);
+  if (button) {
+    button.addEventListener("click", () => {
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*"; // Solo acepta archivos de imagen
+      fileInput.style.display = "none";
+      document.body.appendChild(fileInput);
 
-    fileInput.addEventListener("change", () => {
-      const file = fileInput.files[0];
-      addUserProfileImage(file);
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        addUserProfileImage(file);
+      });
+
+      fileInput.click();
     });
-
-    fileInput.click();
-  });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   getUser();
-  renderUserProfile();
-  showSpinner(userProfile);
 });
 
 // Función que completa el perfil del usuario
@@ -306,12 +317,15 @@ userProfileForm.addEventListener("submit", (e) => {
   const city = document.getElementById("city").value;
   const state = document.getElementById("state").value;
   const zip_code = document.getElementById("zip_code").value;
-  const userIdDocument = document.getElementById("user-identification")
-    .files[0];
-  const userAddressDocument = document.getElementById("user-address-document")
-    .files[0];
-  const userCountDocument = document.getElementById("user-count-document")
-    .files[0];
+  const userIdInput = document.getElementById("user-identification");
+  const userAddressInput = document.getElementById("user-address-document");
+  const userCountInput = document.getElementById("user-count-document");
+
+  const userIdDocument = userIdInput ? userIdInput.files[0] : null;
+  const userAddressDocument = userAddressInput
+    ? userAddressInput.files[0]
+    : null;
+  const userCountDocument = userCountInput ? userCountInput.files[0] : null;
 
   const userData = {
     first_name,
@@ -352,8 +366,7 @@ userProfileForm.addEventListener("submit", (e) => {
           popup: "animate__animated animate__zoomOut",
         },
       }).then(() => {
-        getUser();
-        updateRole("premium");
+        window.location.reload();
       });
     }
   });
@@ -361,6 +374,7 @@ userProfileForm.addEventListener("submit", (e) => {
 
 // Función que envía los datos del perfil del usuario al servidor
 async function sendProfileData(data) {
+  const userId = userProfile[0].email;
   const response = await fetch(
     `http://localhost:${PORT}/api/users/userProfile`,
     {
@@ -408,3 +422,21 @@ const sendDocumentsData = async (
 
   return result;
 };
+
+// Agrega un evento de cambio a cada campo del formulario
+document.querySelectorAll(".form-control").forEach((input) => {
+  input.addEventListener("change", async (event) => {
+    // Obtiene el valor actualizado del campo
+    const newValue = event.target.value;
+
+    // Actualiza el perfil del usuario en la base de datos con el nuevo valor
+    const updatedUserProfile = {
+      ...userProfile,
+      [event.target.id]: newValue,
+    };
+    await sendProfileData(updatedUserProfile);
+
+    // Actualiza solo el campo específico en la página con el nuevo valor
+    event.target.value = newValue;
+  });
+});

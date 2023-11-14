@@ -343,7 +343,7 @@ async function addDocumentsToUser(req, res, next) {
       } else {
         result = await usersService.addUserDocuments(id, files);
       }
-      if (!result.first_name) {
+      if (result.length === 0 || !result) {
         req.logger.error(
           `Error de base de datos: Error al agregar el documento. ${new Date().toLocaleString()}`
         );
