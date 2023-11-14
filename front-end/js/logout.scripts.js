@@ -1,7 +1,10 @@
 // Ultima desconexión
 const lastConnection = async () => {
-  const user = localStorage.getItem("user");
-  const username = JSON.parse(user).username;
+  const user = JSON.parse(localStorage.getItem("user"));
+  const username = user.email;
+
+  console.log(username);
+
   const response = await fetch(
     `http://localhost:${PORT}/api/sessions/lastConnection`,
     {

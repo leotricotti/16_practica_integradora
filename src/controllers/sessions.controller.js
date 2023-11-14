@@ -90,7 +90,6 @@ async function failLogin(req, res, next) {
 
 async function lastConnection(req, res, next) {
   const { username, action } = req.body;
-
   if (!username || !action) {
     const result = [username, action];
     req.logger.error(
