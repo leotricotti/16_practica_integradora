@@ -38,4 +38,9 @@ export default class UsersRepository {
     const result = await this.dao.addDocuments(id, documents);
     return result;
   };
+
+  updateOneProfileImage = async (id, profileImage) => {
+    const result = await this.dao.updateProfileImage(id, profileImage);
+    return result;
+  };
 }

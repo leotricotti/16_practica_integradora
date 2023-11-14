@@ -334,15 +334,23 @@ async function addDocumentsToUser(req, res, next) {
       });
     } else {
       const id = user[0]._id;
-      const result = await usersService.addUserDocuments(id, files);
-      if (result.length === 0 || !result) {
+      let result;
+      if (files.userProfileImage) {
+        result = await usersService.updateOneProfileImage(
+          id,
+          files.userProfileImage[0]
+        );
+      } else {
+        result = await usersService.addUserDocuments(id, files);
+      }
+      if (!result.first_name) {
         req.logger.error(
-          `Error de base de datos: Usuario no encontrado ${new Date().toLocaleString()}`
+          `Error de base de datos: Error al agregar el documento. ${new Date().toLocaleString()}`
         );
         CustomError.createError({
           name: "Error de base de datos",
           cause: generateSessionErrorInfo(result, EErrors.DATABASE_ERROR),
-          message: "Usuario no encontrado",
+          message: "Error al agregar el documento",
           code: EErrors.DATABASE_ERROR,
         });
       } else {
@@ -351,7 +359,7 @@ async function addDocumentsToUser(req, res, next) {
         req.logger.info(
           `Documento agregado con éxito ${new Date().toLocaleString()}`
         );
-        res.status(200).json({
+        res.json({
           message: "Documento agregado con éxito",
           data: userDto,
         });

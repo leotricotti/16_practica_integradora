@@ -6,8 +6,6 @@ const token = localStorage.getItem("token");
 const PORT = localStorage.getItem("port");
 const localPort = localStorage.getItem("localPort");
 
-console.log(userProfile[0].documents);
-
 // Función que captura la información del usuario y la almacena en el local storage
 const getUser = async () => {
   const newRole = "premium";
@@ -21,8 +19,9 @@ const getUser = async () => {
     });
 
     const result = await response.json();
+    console.log(result);
 
-    if (result.length > 0) {
+    if (result.length > 0 || result.data) {
       localStorage.setItem("user", JSON.stringify(result.data));
     }
 
@@ -70,8 +69,10 @@ const addUserProfileImage = async (userProfileImage) => {
       hideClass: {
         popup: "animate__animated animate__zoomOut",
       },
-    }).then(() => {
-      getUser();
+    }).then((result) => {
+      if (result.isConfirmed) {
+        getUser();
+      }
     });
   }
   return result;
@@ -89,8 +90,20 @@ const updatedDocumentLabel = (documentName) => {
 };
 
 // Función que compruba si el usuario subió una imagen de perfil
-// const checkUserProfileImage = () => {
-// if(userProfile[0].) {
+const checkUserProfileImage = () => {
+  const userImage = userProfile[0].documents.filter(
+    (document) => document.name === "userProfileImage"
+  );
+
+  if (userImage.length > 0) {
+    const referenceParts = userImage[0].reference.split("/");
+    const finalReference =
+      "/profiles/" + referenceParts[referenceParts.length - 1];
+    return `<img class="rounded-circle mt-5" width="150px" height="150px" style="object-fit: contain" src="http://localhost:${PORT}${finalReference}" />`;
+  } else {
+    return `<img class="rounded-circle mt-5" width="150px" src="../img/user.jpg" />`;
+  }
+};
 
 // Función que renderiza el perfil del usuario
 async function renderUserProfile() {
@@ -103,11 +116,7 @@ async function renderUserProfile() {
           <div class="col-md-3 border-right">
             <div class="d-flex flex-column align-items-center text-center p-3 py-5">
               <div class="position-relative">
-                <img
-                  class="rounded-circle mt-5"
-                  width="150px"
-                  src="../img/user.jpg"
-                />
+                ${checkUserProfileImage()}
                 <button
                   type="button"
                   class="btn position-absolute"

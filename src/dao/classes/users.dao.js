@@ -87,4 +87,17 @@ export default class UsersDao {
       return [];
     }
   };
+
+  updateProfileImage = async (id, image) => {
+    try {
+      const respuesta = await usersModel.findOneAndUpdate(
+        { _id: id, "documents.name": "userProfileImage" },
+        { "documents.$.reference": image.path }
+      );
+      return respuesta;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  };
 }
