@@ -69,6 +69,7 @@ const addUserProfileImage = async (userProfileImage) => {
     Swal.fire({
       icon: "success",
       title: "¡Imagen de perfil actualizada!",
+      confirmButtonText: "Aceptar",
 
       showClass: {
         popup: "animate__animated animate__zoomIn",
@@ -357,8 +358,7 @@ userProfileForm.addEventListener("submit", (e) => {
       Swal.fire({
         icon: "success",
         title: "¡Datos guardados correctamente!",
-        showConfirmButton: false,
-        timer: 1500,
+        confirmButtonText: "Aceptar",
         showClass: {
           popup: "animate__animated animate__zoomIn",
         },
@@ -440,3 +440,7 @@ document.querySelectorAll(".form-control").forEach((input) => {
     event.target.value = newValue;
   });
 });
+
+const goToProducts = () => {
+  window.location.href = `http://127.0.0.1:${localPort}/html/products.html`;
+};
