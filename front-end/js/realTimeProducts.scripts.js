@@ -13,6 +13,41 @@ if (userRoleInfo === "admin") {
   document.getElementById("chat-section").classList.add("d-none");
 }
 
+// Funcíon que genera codigos de productos aleatorios
+function generateProductCode() {
+  const code = Math.floor(Math.random() * 10000000);
+  return code;
+}
+
+function createRandomCodeInput() {
+  const getCodeInput = document.getElementById("code-container");
+  getCodeInput.innerHTML = "";
+  const label = document.createElement("label");
+  label.setAttribute("for", "code");
+  label.innerHTML = "Código de producto";
+  const input = document.createElement("input");
+  input.setAttribute("type", "text");
+  input.setAttribute("id", "code");
+  input.setAttribute("class", "form-control");
+  input.setAttribute("placeholder", "Código de producto");
+  input.setAttribute("value", "");
+
+  // Agrega los elementos creados al contenedor
+  getCodeInput.appendChild(label);
+  getCodeInput.appendChild(input);
+
+  // Genera un codigo aleatorio y lo agrega al input
+  const inputField = document.getElementById("code");
+  inputField.addEventListener("click", () => {
+    input.value = generateProductCode();
+  });
+}
+
+// Codigo que crea el input al cargar la pagina
+document.addEventListener("DOMContentLoaded", () => {
+  createRandomCodeInput();
+});
+
 // Obtener el formulario de agregar producto
 const form = document.getElementById("add-product-form");
 form.addEventListener("submit", handleSubmit);
@@ -321,9 +356,10 @@ async function handleSubmit(e) {
         body: formData,
       }
     );
+
     const result = await response.json();
-    console.log(result);
-    if (!response.ok) {
+
+    if (result.message !== "Producto creado con éxito") {
       return Swal.fire({
         icon: "error",
         title: "Oops...",
