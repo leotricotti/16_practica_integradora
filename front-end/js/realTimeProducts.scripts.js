@@ -44,41 +44,6 @@ async function loadProductImage() {
 const userProductImage = document.getElementById("thumbnail");
 userProductImage.addEventListener("change", loadProductImage);
 
-// Función que envía la imagen del producto al servidor
-const sendProductImage = async () => {
-  const userId = userLocalData._email;
-  const response = await fetch(
-    `http://localhost:${PORT}/api/users/${userId}/documents`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: formData,
-    }
-  );
-
-  const result = await response.json();
-  if (result.message !== "Imagen subida con éxito") {
-    swal.fire({
-      icon: "error",
-      title: "Oops...",
-      text: "Algo salió mal! Vuelve a intentarlo",
-      showConfirmButton: true,
-      confirmButtonText: "Aceptar",
-      showClass: {
-        popup: "animate__animated animate__zoomIn",
-      },
-      hideClass: {
-        popup: "animate__animated animate__zoomOut",
-      },
-    });
-  }
-
-  return result;
-};
-
 // Función para manejar el envío del formulario de actualizar producto
 async function handleUpdateProduct(
   id,

@@ -18,9 +18,9 @@ router.post(
   "/:uid/documents",
   authToken,
   uploader.fields([
-    { name: "userIdDocument", maxCount: 1 },
-    { name: "userAddressDocument", maxCount: 1 },
-    { name: "userCountDocument", maxCount: 1 },
+    { name: "userIdDocument", maxCount: 3 },
+    { name: "userAddressDocument", maxCount: 3 },
+    { name: "userCountDocument", maxCount: 3 },
     { name: "userProfileImage", maxCount: 1 },
   ]),
   addDocumentsToUser

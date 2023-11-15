@@ -5,6 +5,7 @@ import {
   deleteProduct,
   updateProduct,
 } from "../controllers/realTimeProducts.controller.js";
+import { uploader } from "../utils/index.js";
 
 //Inicializar servicios
 const router = Router();
@@ -16,10 +17,18 @@ router.get("/", getAll);
 router.get("/:pid", getOne);
 
 //Ruta para guardar un producto
-router.post("/", saveProduct);
+router.post(
+  "/",
+  uploader.fields([{ name: "userProductImage", maxCount: 3 }]),
+  saveProduct
+);
 
 //Ruta para actualizar un producto
-router.put("/:pid", updateProduct);
+router.put(
+  "/:pid",
+  uploader.fields([{ name: "userProductImage", maxCount: 3 }]),
+  updateProduct
+);
 
 //Ruta para eliminar un producto
 router.delete("/:pid", deleteProduct);
