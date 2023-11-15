@@ -55,7 +55,6 @@ async function handleUpdateProduct(
   category
 ) {
   try {
-    const thumbnail = await sendProductImage();
     const product = {
       title: title,
       description: description,
@@ -63,7 +62,6 @@ async function handleUpdateProduct(
       price: price,
       stock: stock,
       category: category,
-      thumbnail: thumbnail ? thumbnail : undefined,
     };
 
     const response = await fetch(
@@ -74,7 +72,7 @@ async function handleUpdateProduct(
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(product),
+        body: [JSON.stringify(product), formData],
       }
     );
     const result = await response.json();
@@ -248,7 +246,7 @@ const getProductToUpdate = async (id) => {
   window.scrollTo(0, 0);
 };
 
-// Función para manejar el envío del formulario
+// Función que maneja la creación de un producto
 async function handleSubmit(e) {
   e.preventDefault();
   if (userRoleInfo === "premium") {
@@ -257,8 +255,7 @@ async function handleSubmit(e) {
     owner = "admin";
   }
 
-  const { title, description, code, price, stock, category, thumbnail } =
-    form.elements;
+  const { title, description, code, price, stock, category } = form.elements;
   if (
     !title.value ||
     !description.value ||
@@ -281,7 +278,6 @@ async function handleSubmit(e) {
       },
     });
   } else {
-    const thumbnail = await sendProductImage();
     const product = {
       title: title.value,
       description: description.value,
@@ -290,7 +286,6 @@ async function handleSubmit(e) {
       stock: stock.value,
       category: category.value,
       owner: owner,
-      thumbnail: thumbnail ? thumbnail : undefined,
     };
 
     const response = await fetch(
@@ -301,7 +296,7 @@ async function handleSubmit(e) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(product),
+        body: [JSON.stringify(product), formData],
       }
     );
     if (!response.ok) {
@@ -468,7 +463,9 @@ async function updateProductList() {
   }
 }
 
-updateProductList();
+document.addEventListener("DOMContentLoaded", () => {
+  updateProductList();
+});
 
 // Eliminar un producto de la lista de productos
 function eliminarProducto(id) {

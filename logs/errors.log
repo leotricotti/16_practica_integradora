@@ -266,3 +266,6 @@
 {"level":"error","message":"Error de autenticación. No es prosible autenticar el usuario 15/11/2023, 8:29:58"}
 {"level":"error","message":"Error de autenticación. No es prosible autenticar el usuario 15/11/2023, 8:30:13"}
 {"level":"error","message":"Error de autenticación. No es prosible autenticar el usuario 15/11/2023, 8:30:40"}
+{"level":"error","message":"Error de autenticación. No fue posible verificar el token 15/11/2023, 9:00:48"}
+{"level":"error","message":"Error de autenticación. No fue posible verificar el token 15/11/2023, 9:00:55"}
+{"level":"error","message":"Error de tipo de dato: Error al actualizar al crear el carrito 15/11/2023, 9:01:12"}

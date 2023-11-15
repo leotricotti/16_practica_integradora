@@ -8,8 +8,8 @@ import {
 
 // Metodo asincrono para guardar un producto
 async function saveProduct(req, res, next) {
-  const { title, description, code, price, stock, category, owner, thumbnail } =
-    req.body;
+  const { thumbnail } = req.files;
+  const { title, description, code, price, stock, category, owner } = req.body;
   try {
     if (!title || !description || !price || !code || !stock || !category) {
       const data = { title, description, code, price, stock, category };
@@ -32,7 +32,9 @@ async function saveProduct(req, res, next) {
       stock,
       owner,
       category,
-      thumbnail,
+      thumbnails: thumbnail
+        ? thumbnail.map((file) => file.filename)
+        : undefined,
     };
     const result = await productsService.saveOneProduct(product);
     if (!result) {
@@ -114,8 +116,8 @@ async function deleteProduct(req, res, next) {
 // Metodo asincrono para actualizar un producto
 async function updateProduct(req, res, next) {
   const { pid } = req.params;
-  const { title, description, code, price, stock, category, thumbnail } =
-    req.body;
+  const { thumbnail } = req.files;
+  const { title, description, code, price, stock, category } = req.body;
   try {
     if (!title || !description || !price || !code || !stock) {
       const data = { title, description, code, price, stock, category };
@@ -137,7 +139,9 @@ async function updateProduct(req, res, next) {
       price,
       stock,
       category,
-      thumbnail,
+      thumbnails: thumbnail
+        ? thumbnail.map((file) => file.filename)
+        : undefined,
     };
     const result = await productsService.updateOneProduct(pid, product);
     if (!result) {
