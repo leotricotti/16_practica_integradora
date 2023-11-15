@@ -1,6 +1,7 @@
 // Variables globales
 let page = 1;
 let counter = 0;
+let fileCounter = 1;
 const PORT = localStorage.getItem("port");
 const userLocalData = JSON.parse(localStorage.getItem("user"));
 const userRoleInfo = userLocalData.role;
@@ -16,7 +17,8 @@ if (userRoleInfo === "admin") {
 const form = document.getElementById("add-product-form");
 form.addEventListener("submit", handleSubmit);
 
-async function loadProductImage() {
+// Función que maneja la carga de la imagen del producto
+async function manageProductImage() {
   const files = document.getElementById("thumbnail").files;
   const linkContainer = document.getElementById("link-container");
 
@@ -42,7 +44,28 @@ async function loadProductImage() {
 
 // Codigo que dispare el evento change del input de archivo
 const userProductImage = document.getElementById("thumbnail");
-userProductImage.addEventListener("change", loadProductImage);
+userProductImage.addEventListener("change", function (e) {
+  if (fileCounter <= 3) {
+    console.log(fileCounter);
+    manageProductImage();
+    fileCounter++;
+    this.value = "";
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Solo puedes subir 3 imagenes!",
+      showConfirmButton: true,
+      confirmButtonText: "Aceptar",
+      showClass: {
+        popup: "animate__animated animate__zoomIn",
+      },
+      hideClass: {
+        popup: "animate__animated animate__zoomOut",
+      },
+    });
+  }
+});
 
 // Función para manejar el envío del formulario de actualizar producto
 async function handleUpdateProduct(
@@ -287,16 +310,15 @@ async function handleSubmit(e) {
       category: category.value,
       owner: owner,
     };
-
+    formData.append(product);
     const response = await fetch(
       `http://localhost:${PORT}/api/realTimeProducts`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: [JSON.stringify(product), formData],
+        body: formData,
       }
     );
     if (!response.ok) {
