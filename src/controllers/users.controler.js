@@ -139,11 +139,11 @@ async function userCart(req, res, next) {
   try {
     if (!cartId || !email) {
       req.logger.error(
-        `Error de tipo de dato: Error al actualizar al crear el carrito ${new Date().toLocaleString()}`
+        `Error de tipo de dato: Error al crear el carrito ${new Date().toLocaleString()}`
       );
       CustomError.createError({
         name: "Error de tipo de dato",
-        cause: generateSessionErrorInfo(result, EErrors.INVALID_TYPES_ERROR),
+        cause: generateSessionErrorInfo(cartId, EErrors.INVALID_TYPES_ERROR),
         message: "Error al crear el carrito",
         code: EErrors.INVALID_TYPES_ERROR,
       });

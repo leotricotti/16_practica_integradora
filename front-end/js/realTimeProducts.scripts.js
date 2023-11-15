@@ -310,7 +310,7 @@ async function handleSubmit(e) {
       category: category.value,
       owner: owner,
     };
-    formData.append(product);
+    formData.append("newProduct", JSON.stringify(product));
     const response = await fetch(
       `http://localhost:${PORT}/api/realTimeProducts`,
       {
@@ -321,6 +321,8 @@ async function handleSubmit(e) {
         body: formData,
       }
     );
+    const result = await response.json();
+    console.log(result);
     if (!response.ok) {
       return Swal.fire({
         icon: "error",

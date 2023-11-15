@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Ruta que agrega el id del carrito como referencia al usuario
 const addCartId = async () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  const email = user.username;
+  const email = user.email;
   return new Promise(async (resolve, reject) => {
     let cartId = localStorage.getItem("cartId");
     while (!cartId) {
