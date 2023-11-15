@@ -1,10 +1,12 @@
 // Variables globales
 let page = 1;
+let counter = 0;
 const PORT = localStorage.getItem("port");
 const userLocalData = JSON.parse(localStorage.getItem("user"));
 const userRoleInfo = userLocalData.role;
 const userName = userLocalData.username;
 let owner = "";
+const formData = new FormData();
 
 if (userRoleInfo === "admin") {
   document.getElementById("chat-section").classList.add("d-none");
@@ -15,8 +17,67 @@ const form = document.getElementById("add-product-form");
 form.addEventListener("submit", handleSubmit);
 
 async function loadProductImage() {
-  const file = document.getElementById("thumbnail").files[0];
+  const files = document.getElementById("thumbnail").files;
+  const linkContainer = document.getElementById("link-container");
+
+  for (let i = 0; i < files.length; i++) {
+    formData.append("userProductImage", files[i]);
+  }
+
+  // Crear un enlace y una imagen para cada archivo subido
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.target = "_blank";
+    link.classList.add("link-offset-2");
+    link.href = url;
+    link.textContent = "Ver imagen " + (i + ++counter);
+    linkContainer.appendChild(link);
+  }
+
+  // Restablecer el mensaje del input de archivo a su valor original
+  document.getElementById("thumbnail").value = "";
 }
+
+// Codigo que dispare el evento change del input de archivo
+const userProductImage = document.getElementById("thumbnail");
+userProductImage.addEventListener("change", loadProductImage);
+
+// Función que envía la imagen del producto al servidor
+const sendProductImage = async () => {
+  const userId = userLocalData._email;
+  const response = await fetch(
+    `http://localhost:${PORT}/api/users/${userId}/documents`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+    }
+  );
+
+  const result = await response.json();
+  if (result.message !== "Imagen subida con éxito") {
+    swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Algo salió mal! Vuelve a intentarlo",
+      showConfirmButton: true,
+      confirmButtonText: "Aceptar",
+      showClass: {
+        popup: "animate__animated animate__zoomIn",
+      },
+      hideClass: {
+        popup: "animate__animated animate__zoomOut",
+      },
+    });
+  }
+
+  return result;
+};
 
 // Función para manejar el envío del formulario de actualizar producto
 async function handleUpdateProduct(
@@ -26,10 +87,10 @@ async function handleUpdateProduct(
   code,
   price,
   stock,
-  category,
-  thumbnail
+  category
 ) {
   try {
+    const thumbnail = await sendProductImage();
     const product = {
       title: title,
       description: description,
@@ -37,6 +98,7 @@ async function handleUpdateProduct(
       price: price,
       stock: stock,
       category: category,
+      thumbnail: thumbnail ? thumbnail : undefined,
     };
 
     const response = await fetch(
@@ -254,6 +316,7 @@ async function handleSubmit(e) {
       },
     });
   } else {
+    const thumbnail = await sendProductImage();
     const product = {
       title: title.value,
       description: description.value,
@@ -262,12 +325,7 @@ async function handleSubmit(e) {
       stock: stock.value,
       category: category.value,
       owner: owner,
-      thumbnail:
-        thumbnail.value === ""
-          ? {
-              img1: "https://freezedepot.com/wp-content/uploads/2023/05/producto-sin-imagen.png",
-            }
-          : thumbnail.value,
+      thumbnail: thumbnail ? thumbnail : undefined,
     };
 
     const response = await fetch(
