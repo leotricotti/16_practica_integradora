@@ -9,8 +9,9 @@ import {
 // Metodo asincrono para guardar un producto
 async function saveProduct(req, res, next) {
   const product = JSON.parse(req.body.newProduct);
+  const file = req.files;
   const { title, description, code, price, stock, category, owner } = product;
-  const { thumbnail } = req.files;
+  const thumbnail = file.userProductImage[0].path;
   try {
     if (!title || !description || !price || !code || !stock || !category) {
       const data = { title, description, code, price, stock, category };
@@ -33,9 +34,7 @@ async function saveProduct(req, res, next) {
       stock,
       owner,
       category,
-      thumbnails: thumbnail
-        ? thumbnail.map((file) => file.filename)
-        : undefined,
+      thumbnail: [{ img1: thumbnail }],
     };
     const result = await productsService.saveOneProduct(product);
     if (!result) {
@@ -116,7 +115,6 @@ async function deleteProduct(req, res, next) {
 
 // Metodo asincrono para actualizar un producto
 async function updateProduct(req, res, next) {
-  console.log(req.files);
   const { pid } = req.params;
   const { title, description, code, price, stock, category, thumbnail } =
     req.files;

@@ -4,14 +4,16 @@ let counter = 0;
 let fileCounter = 1;
 const PORT = localStorage.getItem("port");
 const userLocalData = JSON.parse(localStorage.getItem("user"));
-const userRoleInfo = userLocalData.role;
 const userName = userLocalData.username;
-let owner = "";
 const formData = new FormData();
+const userRoleInfo = userLocalData.role;
 
-if (userRoleInfo === "admin") {
-  document.getElementById("chat-section").classList.add("d-none");
-}
+// Codigo que desabilita el chat para los administradores
+document.addEventListener("DOMContentLoaded", () => {
+  if (userRoleInfo === "admin") {
+    document.getElementById("chat-section").classList.add("d-none");
+  }
+});
 
 // Funcíon que genera codigos de productos aleatorios
 function generateProductCode() {
@@ -81,7 +83,6 @@ async function manageProductImage() {
 const userProductImage = document.getElementById("thumbnail");
 userProductImage.addEventListener("change", function (e) {
   if (fileCounter <= 3) {
-    console.log(fileCounter);
     manageProductImage();
     fileCounter++;
     this.value = "";
@@ -307,12 +308,6 @@ const getProductToUpdate = async (id) => {
 // Función que maneja la creación de un producto
 async function handleSubmit(e) {
   e.preventDefault();
-  if (userRoleInfo === "premium") {
-    owner = userLocalData.username;
-  } else {
-    owner = "admin";
-  }
-
   const { title, description, code, price, stock, category } = form.elements;
   if (
     !title.value ||
@@ -343,7 +338,7 @@ async function handleSubmit(e) {
       price: price.value,
       stock: stock.value,
       category: category.value,
-      owner: owner,
+      owner: userRoleInfo,
     };
     formData.append("newProduct", JSON.stringify(product));
     const response = await fetch(
@@ -451,6 +446,20 @@ const addProductBtn = () => {
   updateProductList();
 };
 
+// Función que define que imagen mostrar en el producto
+const renderProductImage = (product) => {
+  const imageUrl = product.thumbnail[0]?.img1;
+  if (
+    imageUrl ===
+    "https://freezedepot.com/wp-content/uploads/2023/05/producto-sin-imagen.png"
+  ) {
+    return `<img src="${imageUrl}" alt="img" width="150" class="thumbnail position-absolute me-5 mt-5 end-0 top-0">`;
+  } else {
+    const finalUrl = product.thumbnail[0]?.img1.split("public");
+    return `<img src="http://localhost:${PORT}${finalUrl[1]}" alt="img" width="150" class="thumbnail position-absolute me-5 mt-5 end-0 top-0">`;
+  }
+};
+
 // Función para actualizar la lista de productos
 async function updateProductList() {
   const productList = document.getElementById("products-list");
@@ -460,26 +469,25 @@ async function updateProductList() {
     const products = await paginatedProducts(page);
 
     products.forEach((product) => {
-      //Capturar la url de la imagen
-      const imageUrl =
-        product.thumbnail[0]?.img1 ??
-        "https://freezedepot.com/wp-content/uploads/2023/05/producto-sin-imagen.png";
-
       const item = document.createElement("div");
       item.classList.add("list-group-item");
 
       item.innerHTML = `
         <div class="d-flex w-100  justify-content-between flex-column">
           <h2 class="mb-1 subtitle">${product.title}</h2>
-          <p class="mb-1"><strong>Descripción:</strong> ${product.description}</p>
+          <p class="mb-1"><strong>Descripción:</strong> ${
+            product.description
+          }</p>
           <p class="mb-1"><strong>Codigo:</strong> ${product.code}</p>
           <p class="mb-1"><strong>Precio:</strong> ${product.price}</p>
           <p class="mb-1"><strong>Status:</strong> ${product.status}</p>
           <p class="mb-1"><strong>Stock:</strong> ${product.stock}</p>
           <p class="mb-1"><strong>Categoria:</strong> ${product.category}</p>
         </div>
-        <img src="${imageUrl}" alt="img" width="150" class="thumbnail position-absolute me-5 mt-5 end-0 top-0">
-        <button type="button" class="btn btn-primary update-product-btn" onclick="getProductToUpdate('${product._id}')">Actualizar</button>
+        ${renderProductImage(product)}  
+        <button type="button" class="btn btn-primary update-product-btn" onclick="getProductToUpdate('${
+          product._id
+        }')">Actualizar</button>
         <button type="button" class="btn btn-primary delete-product-btn">Eliminar</button>
       `;
 
