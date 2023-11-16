@@ -266,13 +266,17 @@ function renderUserProfile() {
                       })
                       .join("")
                   : `<label class="labels mb-2 text-decoration-underline">Documento de identidad</label>
-                  <input class="form-control" type="file" id="user-identification" accept="image/*" autocomplete="off" required />
+                  <div id="link-container"></div>
+                  <input class="form-control" type="file" id="user-id-document" accept="image/*" autocomplete="off" required />
                   <br />
                   <label class="labels mb-2 text-decoration-underline">Comprobante de domicilio</label>
-                  <input class="form-control" type="file" id="user-address-document" accept="image/*" required autocomplete="off"/>
+                  <div id="link-container-one"></div>
+                  <input class="form-control" type="file" id="user-address-document" accept="image/*" autocomplete="off" required />
                   <br />
                   <label class="labels mb-2 text-decoration-underline">Comprobante de pago</label>
-                  <input class="form-control" type="file" id="user-count-document" accept="image/*" required autocomplete="off"/>`
+                  <div id="link-container-two"></div>
+                  <input class="form-control" type="file" id="user-count-document" accept="image/*" autocomplete="off" required />
+                  `
               }
               </div>
             </div>
@@ -281,6 +285,7 @@ function renderUserProfile() {
       `;
     })}
   `;
+
   userProfileForm.innerHTML = html;
 
   // Agrega el evento de click después de renderizar el HTML
@@ -301,6 +306,55 @@ function renderUserProfile() {
       fileInput.click();
     });
   }
+
+  // Funcion que cambia el input por un enlace cuando el usuario sube un documento
+  const documentInput = document.getElementById("user-id-document");
+  const documentInput1 = document.getElementById("user-address-document");
+  const documentInput2 = document.getElementById("user-count-document");
+  const linkContainer = document.getElementById("link-container");
+  const linkContainer1 = document.getElementById("link-container-one");
+  const linkContainer2 = document.getElementById("link-container-two");
+
+  if (documentInput) {
+    documentInput.addEventListener("change", () => {
+      documentInput.classList.add("d-none");
+      const url = URL.createObjectURL(documentInput.files[0]);
+      const link = document.createElement("a");
+      link.target = "_blank";
+      link.classList.add("link-offset-2");
+      link.href = url;
+      link.textContent = "Ver imagen";
+      linkContainer.appendChild(link);
+    });
+  }
+
+  if (documentInput1) {
+    documentInput1.addEventListener("change", () => {
+      console.log("change event fired");
+      documentInput1.classList.add("d-none");
+      const url = URL.createObjectURL(documentInput1.files[0]);
+      const link = document.createElement("a");
+      link.target = "_blank";
+      link.classList.add("link-offset-2");
+      link.href = url;
+      link.textContent = "Ver imagen";
+      linkContainer1.appendChild(link);
+    });
+  }
+
+  if (documentInput2) {
+    documentInput2.addEventListener("change", () => {
+      documentInput2.classList.add("d-none");
+      const url = URL.createObjectURL(documentInput2.files[0]);
+      const link = document.createElement("a");
+      link.target = "_blank";
+      link.classList.add("link-offset-2");
+      link.classList.add("text-decoration-underline");
+      link.href = url;
+      link.textContent = "Ver imagen";
+      linkContainer2.appendChild(link);
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -318,7 +372,7 @@ userProfileForm.addEventListener("submit", (e) => {
   const city = document.getElementById("city").value;
   const state = document.getElementById("state").value;
   const zip_code = document.getElementById("zip_code").value;
-  const userIdInput = document.getElementById("user-identification");
+  const userIdInput = document.getElementById("user-id-document");
   const userAddressInput = document.getElementById("user-address-document");
   const userCountInput = document.getElementById("user-count-document");
 
@@ -366,6 +420,7 @@ userProfileForm.addEventListener("submit", (e) => {
           popup: "animate__animated animate__zoomOut",
         },
       }).then(() => {
+        renderDropdownMenu();
         window.location.reload();
       });
     }

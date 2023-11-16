@@ -5,7 +5,6 @@ let fileCounter = 1;
 const PORT = localStorage.getItem("port");
 const userLocalData = JSON.parse(localStorage.getItem("user"));
 const userName = userLocalData.email;
-const formData = new FormData();
 const userRoleInfo = userLocalData.role;
 
 // Codigo que desabilita el chat para los administradores
@@ -84,7 +83,7 @@ async function manageProductImage() {
   const url = URL.createObjectURL(file);
   const link = document.createElement("a");
   link.target = "_blank";
-  link.classList.add("link-offset-2");
+  link.classList.add("link");
   link.href = url;
   link.textContent = "Ver imagen";
   linkContainer.appendChild(link);
@@ -96,7 +95,7 @@ async function manageProductImage() {
 // Codigo que dispare el evento change del input de archivo
 const userProductImage = document.getElementById("thumbnail");
 userProductImage.addEventListener("change", function (e) {
-  if (fileCounter <= 3) {
+  if (fileCounter < 1) {
     manageProductImage();
     fileCounter++;
     this.value = "";
