@@ -4,7 +4,7 @@ let counter = 0;
 let fileCounter = 1;
 const PORT = localStorage.getItem("port");
 const userLocalData = JSON.parse(localStorage.getItem("user"));
-const userName = userLocalData.username;
+const userName = userLocalData.email;
 const formData = new FormData();
 const userRoleInfo = userLocalData.role;
 
@@ -59,21 +59,35 @@ async function manageProductImage() {
   const files = document.getElementById("thumbnail").files;
   const linkContainer = document.getElementById("link-container");
 
-  for (let i = 0; i < files.length; i++) {
-    formData.append("userProductImage", files[i]);
+  if (formData.has("userProductImage")) {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Ya has cargado un archivo. No puedes cargar más.",
+      showConfirmButton: true,
+      confirmButtonText: "Aceptar",
+      showClass: {
+        popup: "animate__animated animate__zoomIn",
+      },
+      hideClass: {
+        popup: "animate__animated animate__zoomOut",
+      },
+    });
+    document.getElementById("thumbnail").value = "";
+    return;
   }
 
-  // Crear un enlace y una imagen para cada archivo subido
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const url = URL.createObjectURL(file);
-    const link = document.createElement("a");
-    link.target = "_blank";
-    link.classList.add("link-offset-2");
-    link.href = url;
-    link.textContent = "Ver imagen " + (i + ++counter);
-    linkContainer.appendChild(link);
-  }
+  const file = files[0];
+  formData.append("userProductImage", file);
+
+  // Crear un enlace y una imagen para el archivo subido
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.target = "_blank";
+  link.classList.add("link-offset-2");
+  link.href = url;
+  link.textContent = "Ver imagen";
+  linkContainer.appendChild(link);
 
   // Restablecer el mensaje del input de archivo a su valor original
   document.getElementById("thumbnail").value = "";
@@ -308,6 +322,7 @@ const getProductToUpdate = async (id) => {
 // Función que maneja la creación de un producto
 async function handleSubmit(e) {
   e.preventDefault();
+
   const { title, description, code, price, stock, category } = form.elements;
   if (
     !title.value ||
@@ -503,29 +518,27 @@ async function updateProductList() {
     const deleteBtns = document.querySelectorAll(".delete-product-btn");
     const updateBtns = document.querySelectorAll(".update-product-btn");
 
-    if (userRoleInfo === "premium") {
-      deleteBtns.forEach((btn, index) => {
-        if (products[index].owner == userName) {
-          btn.disabled = false;
-        } else {
-          btn.disabled = true;
-        }
-      });
-      updateBtns.forEach((btn, index) => {
-        if (products[index].owner === userName) {
-          btn.disabled = false;
-        } else {
-          btn.disabled = true;
-        }
-      });
-    } else {
-      deleteBtns.forEach((btn) => {
+    console.log(products);
+
+    deleteBtns.forEach((btn, index) => {
+      if (userRoleInfo === "premium" && products[index].owner === "premium") {
         btn.disabled = false;
-      });
-      updateBtns.forEach((btn) => {
+      } else if (userRoleInfo === "admin") {
         btn.disabled = false;
-      });
-    }
+      } else {
+        btn.disabled = true;
+      }
+    });
+
+    updateBtns.forEach((btn, index) => {
+      if (userRoleInfo === "premium" && products[index].owner === "premium") {
+        btn.disabled = false;
+      } else if (userRoleInfo === "admin") {
+        btn.disabled = false;
+      } else {
+        btn.disabled = true;
+      }
+    });
   } catch (error) {
     console.log(error);
   }
